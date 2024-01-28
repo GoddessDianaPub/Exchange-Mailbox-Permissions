@@ -4,6 +4,9 @@ Connect-ExchangeOnline
 # Checking user's mailbox permission:
 Get-MailboxFolderPermission -Identity "<user's UPN>"
 
+# Checking specific user's folder permission:
+Get-MailboxFolderPermission -Identity "<user's UPN>:\folder name"
+
 # Grant Editor mailbox permission:
 Add-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Editor
 
