@@ -1,0 +1,20 @@
+#Open Powersheel ISE
+Connect-ExchangeOnline
+
+# Checking user's mailbox permission:
+Get-MailboxFolderPermission -Identity "<user's UPN>"
+
+# Grant Editor mailbox permission:
+Add-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Editor
+
+# Grant Reviewer mailbox permission:
+Add-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Reviewer
+
+# Edit exsiting permission entry to reviewer permission:
+Set-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Reviewer
+
+# Edit exsiting permission entry to editor permission:
+Set-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Editor
+
+# Remove mailbox permission:
+Remove-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN"
