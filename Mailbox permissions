@@ -1,28 +1,45 @@
-#Open Powersheel ISE
+# Open PowerShell ISE
 Connect-ExchangeOnline
 
-# Checking user's mailbox permission:
-Get-MailboxFolderPermission -Identity "<user's UPN>"
+##Entire level permissions
+# Check all folder-level permissions for a mailbox
+Get-MailboxPermission -Identity "ManagerMail UPN"
 
-# Checking specific user's folder permission:
-Get-MailboxFolderPermission -Identity "<user's UPN>:\folder name"
+# Grants Full Access (Read, Send, Modify but NOT Send-As)
+Add-MailboxPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN" -AccessRights FullAccess -InheritanceType All
 
-# Grant Editor mailbox permission:
-Add-MailboxFolderPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN" -AccessRights Reviewer
-Add-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Editor
+# Grants Send-As (Ability to send emails as the mailbox owner)
+Add-RecipientPermission -Identity "ManagerMail UPN" -Trustee "SecretaryMail UPN" -AccessRights SendAs -Confirm:$false
 
-# Grant Reviewer mailbox permission:
-Add-MailboxFolderPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN" -AccessRights Reviewer
-Add-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Reviewer
+# Grants Send-on-Behalf
+Set-Mailbox -Identity "ManagerMail UPN" -GrantSendOnBehalfTo "SecretaryMail UPN"
 
-# Edit exsiting permission entry to reviewer permission:
-Set-MailboxFolderPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN" -AccessRights Reviewer
-Set-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Reviewer
+## Folder-Level Permissions (Granular Access)
+# Check specific folder permission (e.g., Inbox, Calendar)
+Get-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox"
 
-# Edit exsiting permission entry to editor permission:
-Set-MailboxFolderPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN" -AccessRights Reviewer
-Set-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN" -AccessRights Editor
+# Grant Editor access to a specific folder (e.g., Inbox)
+Add-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox" -User "SecretaryMail UPN" -AccessRights Editor
 
-# Remove mailbox permission:
-Remove-MailboxFolderPermission -Identity "ManagerMail UPN" -User "SecretaryMail UPN"
-Remove-MailboxFolderPermission -Identity "ManagerMail UPN:\folder name" -User "SecretaryMail UPN"
+# Grant Reviewer access to a specific folder (e.g., Inbox)
+Add-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox" -User "SecretaryMail UPN" -AccessRights Reviewer
+
+Modifying Existing Permissions
+# Change existing permission entry to Reviewer
+Set-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox" -User "SecretaryMail UPN" -AccessRights Reviewer
+
+# Change existing permission entry to Editor
+Set-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox" -User "SecretaryMail UPN" -AccessRights Editor
+
+## Removing Permissions
+# Remove Full Mailbox Access
+Remove-MailboxPermission -Identity "ManagerMail UPN" -User "SecretaryMailUPN" -AccessRights FullAccess -Confirm:$false
+
+# Remove Folder-Level Permission
+Remove-MailboxFolderPermission -Identity "ManagerMail UPN:\Inbox" -User "SecretaryMail UPN"
+
+# Remove Send-As Permission
+Remove-RecipientPermission -Identity "ManagerMail UPN" -Trustee "SecretaryMail UPN" -AccessRights SendAs -Confirm:$false
+
+# Remove Send-on-Behalf Permission
+Set-Mailbox -Identity "ManagerMail UPN" -GrantSendOnBehalfTo $null
